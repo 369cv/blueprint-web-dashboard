@@ -130,7 +130,7 @@ export default function ScriptsScreen({ scripts, onAddScript, avatars, voices, t
                       key={d}
                       onClick={() => {
                         setMetaFor(s.id, { day: d });
-                        onSchedule && onSchedule(d, s.title, (meta[s.id] || {}).category || 'Finance');
+                        onSchedule && onSchedule(s.id, d, s.title, (meta[s.id] || {}).category || 'Finance');
                         setScheduleOpenFor(null);
                       }}
                       style={{ padding: '5px 9px', borderRadius: 6, background: 'var(--color-surface-sunken)', font: '600 11.5px var(--font-sans)', cursor: 'pointer' }}
@@ -273,7 +273,7 @@ export default function ScriptsScreen({ scripts, onAddScript, avatars, voices, t
                     icon="arrowUpRight"
                     onClick={() => {
                       const day = WEEK[5];
-                      onSchedule && onSchedule(day, current.title, (meta[current.id] || {}).category || 'Finance');
+                      onSchedule && onSchedule(current.id, day, current.title, (meta[current.id] || {}).category || 'Finance');
                       setPosted(true);
                     }}
                   >

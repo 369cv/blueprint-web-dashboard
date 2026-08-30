@@ -37,7 +37,7 @@ export default function App() {
   const [weekOffset, setWeekOffset] = useState(0);
 
   const [scheduled, setScheduled] = useState(initialData.scheduled.slice());
-  const [categories, setCategories] = useState(initialData.inspoCategories.map((c) => ({ id: c.id, label: c.label })));
+  const [categories, setCategories] = useState(initialData.inspoCategories.map((c) => ({ id: c.id, label: c.label, color: c.color })));
   const [personas, setPersonas] = useState(initialData.personas.slice());
   const [templates, setTemplates] = useState(initialData.templates.slice());
   const [inspoVideos, setInspoVideos] = useState(initialData.inspoVideos.slice());
@@ -45,6 +45,7 @@ export default function App() {
 
   const [outlierPost, setOutlierPost] = useState(null);
   const [outlierSaved, setOutlierSaved] = useState(false);
+  const [outlierTemplateSaved, setOutlierTemplateSaved] = useState(false);
   const [outlierCategory, setOutlierCategory] = useState(null);
   const [outlierDescription, setOutlierDescription] = useState('');
   const [outlierNotes, setOutlierNotes] = useState('');
@@ -80,7 +81,8 @@ export default function App() {
   const isTracked = nav === 'Tracked creators';
   const isOutlierDetail = !!outlierPost;
 
-  const actionLabel = ACTION_LABELS[nav] || null;
+  const actionLabel = isOutlierDetail ? null : ACTION_LABELS[nav] || null;
+  const topBarTitle = isOutlierDetail ? 'Outlier Detail' : nav;
 
   const modalOpen = !!modalStep;
   const isModalInput = modalStep === 'input';
@@ -106,6 +108,8 @@ export default function App() {
 
   const openSaveModal = () => setModalStep('input');
   const closeSaveModal = () => {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
     setModalStep(null);
     setPastedUrl('');
   };
@@ -128,9 +132,9 @@ export default function App() {
 
   const onWeekShift = (dir) => setWeekOffset((w) => w + dir);
   const onToday = () => setWeekOffset(0);
-  const scheduleItem = (day, title, category) => {
-    const entry = { day, title, category, type: 'Script', status: 'To Create' };
-    setScheduled((prev) => [...prev.filter((it) => it.title !== title), entry]);
+  const scheduleItem = (scriptId, day, title, category) => {
+    const entry = { scriptId, day, title, category, type: 'Script', status: 'To Create' };
+    setScheduled((prev) => [...prev.filter((it) => it.scriptId !== scriptId), entry]);
   };
 
   const addCategory = (label) => setCategories((prev) => [...prev, { id: 'cat-' + Date.now(), label }]);
@@ -177,7 +181,9 @@ export default function App() {
   const openTrackModal = () => setTrackModalOpen(true);
   const closeTrackModal = () => setTrackModalOpen(false);
   const trackCreator = (handle) => {
-    setTrackedCreators((prev) => [...prev, { name: handle.replace('@', ''), handle: handle.startsWith('@') ? handle : '@' + handle, trend: 'New — tracking started' }]);
+    const normalizedHandle = handle.startsWith('@') ? handle : '@' + handle;
+    const id = 'manual:' + normalizedHandle.replace('@', '').toLowerCase();
+    setTrackedCreators((prev) => [...prev, { id, name: handle.replace('@', ''), handle: normalizedHandle, trend: 'New — tracking started' }]);
     setTrackModalOpen(false);
   };
 
@@ -187,6 +193,7 @@ export default function App() {
   const openOutlier = (post) => {
     setOutlierPost(post);
     setOutlierSaved(false);
+    setOutlierTemplateSaved(false);
     setOutlierCategory(null);
     setOutlierDescription('');
     setOutlierNotes('');
@@ -199,15 +206,12 @@ export default function App() {
     setInspoVideos((prev) => [entry, ...prev]);
     setOutlierSaved(true);
   };
-  const openOutlierCategoryPicker = () => {
-    categoryPickerOnSelectRef.current = (label) => setOutlierCategory(label);
-    setCategoryPickerCurrent(outlierCategory);
-    setCategoryPickerOpen(true);
-  };
+  const openOutlierCategoryPicker = () => openCategoryPicker(outlierCategory, setOutlierCategory);
   const saveOutlierAsTemplate = () => {
     const hookText = outlierPost.spokenHook || outlierPost.caption;
     const entry = { id: 'tpl-' + Date.now(), hook: hookText, title: hookText.slice(0, 30), desc: 'Saved from Explore', uses: '0 uses', status: 'AI Template Ready', date: 'Today' };
     setTemplates((prev) => [entry, ...prev]);
+    setOutlierTemplateSaved(true);
   };
 
   const openRemix = () => setRemixOpen(true);
@@ -282,6 +286,7 @@ export default function App() {
         saved={outlierSaved}
         onRemix={openRemix}
         onSaveTemplate={saveOutlierAsTemplate}
+        templateSaved={outlierTemplateSaved}
         category={outlierCategory}
         onOpenCategoryPicker={openOutlierCategoryPicker}
         description={outlierDescription}
@@ -294,7 +299,7 @@ export default function App() {
 
   return (
     <div style={{ height: '100vh', overflow: 'auto', background: 'var(--color-bg)' }}>
-      <Shell active={nav} onNavigate={onNavigate} title={nav} actionLabel={actionLabel} onAction={openSaveModal}>
+      <Shell active={nav} onNavigate={onNavigate} title={topBarTitle} actionLabel={actionLabel} onAction={openSaveModal}>
         {screen}
       </Shell>
 

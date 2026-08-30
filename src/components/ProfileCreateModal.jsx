@@ -5,7 +5,7 @@ export default function ProfileCreateModal({ inspoVideos, initial, onClose, onCr
   const editing = !!initial;
   const [step, setStep] = useState(1);
   const [name, setName] = useState(initial ? initial.name : '');
-  const [niche, setNiche] = useState(initial ? initial.niche : '');
+  const [niche, setNiche] = useState(initial ? initial.niche || '' : '');
   const [picked, setPicked] = useState([]);
   const videos = inspoVideos && inspoVideos.length ? inspoVideos : [{ caption: 'Nietzsche Quote on Independent Thinking' }, { caption: 'The Loneliness of Deep Ideas' }, { caption: 'The Nature of Good vs. Evil' }];
   const toggle = (i) => setPicked((p) => (p.includes(i) ? p.filter((x) => x !== i) : [...p, i]));

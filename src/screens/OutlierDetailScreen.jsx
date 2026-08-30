@@ -1,6 +1,6 @@
 import { Badge, Button } from '../design-system/index.js';
 
-export default function OutlierDetailScreen({ post, onSaveToInspo, saved, onRemix, onSaveTemplate, category, onOpenCategoryPicker, description, onDescriptionChange, notes, onNotesChange }) {
+export default function OutlierDetailScreen({ post, onSaveToInspo, saved, onRemix, onSaveTemplate, templateSaved, category, onOpenCategoryPicker, description, onDescriptionChange, notes, onNotesChange }) {
   if (!post) return null;
   return (
     <div style={{ maxWidth: 720 }}>
@@ -93,8 +93,8 @@ export default function OutlierDetailScreen({ post, onSaveToInspo, saved, onRemi
             Remix into script
           </Button>
         )}
-        <Button variant="secondary" icon="fileText" onClick={onSaveTemplate}>
-          Save as Template
+        <Button variant="secondary" icon={templateSaved ? 'check' : 'fileText'} onClick={onSaveTemplate} disabled={templateSaved}>
+          {templateSaved ? 'Saved as Template' : 'Save as Template'}
         </Button>
       </div>
     </div>
