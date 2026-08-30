@@ -1,0 +1,9 @@
+/* Ported verbatim from Blueprint Design System styles.css / tokens/base.css. */
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:var(--color-bg);color:var(--color-text-primary);font-family:var(--font-sans);-webkit-font-smoothing:antialiased;}
+a{color:var(--color-accent);text-decoration:none;}
+a:hover{color:var(--color-accent-hover);text-decoration:underline;}
+
+@keyframes spin{to{transform:rotate(360deg)}}
