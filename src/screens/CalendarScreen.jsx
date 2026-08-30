@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Icon } from '../design-system/index.js';
 import { BlueprintDate as BD } from '../data/blueprintData.js';
 
@@ -6,10 +6,17 @@ const BASE_DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
 export default function CalendarScreen({ weekOffset, onWeekShift, onToday, scheduled }) {
   const days = BASE_DAYS.map((d, i) => [d, BD.serial(weekOffset, i)]);
-  const [selected, setSelected] = useState(BD.serial(0, 5));
-  useEffect(() => {
-    setSelected(BD.serial(weekOffset, 5));
-  }, [weekOffset]);
+  // Reset the day selection back to this week's Saturday whenever weekOffset changes.
+  // Adjusted synchronously during render (React's documented pattern for this) instead of
+  // via useEffect, so switching weeks never briefly renders the previous week's selected day.
+  const [selectedOverride, setSelectedOverride] = useState(null);
+  const [prevWeekOffset, setPrevWeekOffset] = useState(weekOffset);
+  if (weekOffset !== prevWeekOffset) {
+    setPrevWeekOffset(weekOffset);
+    setSelectedOverride(null);
+  }
+  const selected = selectedOverride ?? BD.serial(weekOffset, 5);
+  const setSelected = setSelectedOverride;
   const [tab, setTab] = useState('To Create');
   const items = (scheduled || []).filter((it) => it.day === selected);
   const monthTotal = (scheduled || []).length;
@@ -27,7 +34,7 @@ export default function CalendarScreen({ weekOffset, onWeekShift, onToday, sched
             This <em style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 500 }}>week</em>
           </div>
           <div style={{ font: '400 16px var(--font-sans)', color: 'var(--color-text-secondary)', marginTop: 10 }}>
-            {monthTotal} pieces scheduled · {createdTotal} created · stay one week ahead
+            {monthTotal} {monthTotal === 1 ? 'piece' : 'pieces'} scheduled · {createdTotal} created · stay one week ahead
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>

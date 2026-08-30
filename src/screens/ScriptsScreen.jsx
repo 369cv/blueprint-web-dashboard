@@ -80,7 +80,7 @@ export default function ScriptsScreen({ scripts, onAddScript, avatars, voices, t
         </div>
       </div>
       <div style={{ display: 'flex', gap: 24 }}>
-        <div style={{ width: 300, display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ width: 300, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
           {SCRIPTS.map((s, i) => (
             <div
               key={i}

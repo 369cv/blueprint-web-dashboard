@@ -244,7 +244,9 @@ export default function App() {
     setNav('Scripts');
   };
   const useIdea = (idea) => {
-    const entry = { id: 'idea-use-' + Date.now(), variant: 'Idea', label: '"' + idea.title.slice(0, 30) + '…"', hook: idea.title, date: 'Today', status: 'To create' };
+    // idea.title already reads as a full sentence with its own embedded quotes (e.g. Remix "...").
+    // Don't wrap it in another pair of quotes — that produces confusing triple-nested quoting.
+    const entry = { id: 'idea-use-' + Date.now(), variant: 'Idea', label: idea.title.slice(0, 40) + (idea.title.length > 40 ? '…' : ''), hook: idea.title, date: 'Today', status: 'To create' };
     setScripts((prev) => [entry, ...prev]);
     setNav('Scripts');
   };
